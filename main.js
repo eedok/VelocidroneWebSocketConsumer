@@ -14,15 +14,17 @@ function message (data) {
     /*
     //Uncomment this if you want to see raw data from the websocket
     console.log('received: %s', data);
+    return;
     */
-
+    
+    
     if (data.length == 0) return;
 
     var raceData = JSON.parse(data);
 
     if (raceData["racestatus"] != null) {
+        console.log(raceData["racestatus"]["raceAction"]);
         if (raceData["racestatus"]["raceAction"] == "start") {
-            console.log("start new race");
             heatData = [];
         }
     }
