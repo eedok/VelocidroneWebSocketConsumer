@@ -2,7 +2,7 @@ import VelocidroneClient  from "./VelocidroneClient.js";
 
 var heatData = [];
 
-function createPilot (pilotData) {
+function createPilot (pilotData, pilotName) {
     return {"name": pilotName,
             "holeshot": pilotData.time,
             "laps": [pilotData.time],
@@ -32,7 +32,7 @@ function message (data) {
             var pilot = heatData.find(e => e.name == pilotName);
 
             if (pilot == null) {
-                var pilot = createPilot(pilotData);
+                var pilot = createPilot(pilotData, pilotName);
                 heatData.push(pilot);
                 console.log(`Holeshot ${pilotName} ${pilot.holeshot}`);
             } else {
