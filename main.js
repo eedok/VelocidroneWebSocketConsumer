@@ -11,7 +11,10 @@ function createPilot (pilotData) {
   }
 
 function message (data) {
+    /*
+    //Uncomment this if you want to see raw data from the websocket
     console.log('received: %s', data);
+    */
 
     if (data.length == 0) return;
 
