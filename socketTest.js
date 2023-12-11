@@ -20,6 +20,7 @@ fs.readFile("settings.json", "utf-8", (err, data) => {
   {
     ws.send("");
     setTimeout(heartBeat, 10000);
+    //console.log("Heartbeat");
   }
 
   ws.on('error', console.error);
@@ -43,6 +44,10 @@ fs.readFile("settings.json", "utf-8", (err, data) => {
         console.log("start new race");
         currentHeatData = [];
       }
+      if(raceData["racestatus"]["raceAction"] == "abort")
+      {
+        console.log("race aborted");
+      }
     }
     else if(raceData["racedata"] != null){
       for(let pilotName of Object.keys(raceData["racedata"]))
@@ -63,7 +68,7 @@ fs.readFile("settings.json", "utf-8", (err, data) => {
             pilot.lap = pilotData.lap;
             const lapLength = pilot.laps.length;
             const lapTime = pilot.laps[lapLength - 1] - pilot.laps[lapLength - 2];
-            console.log(`Lap ${pilotName} ${lapTime}`);
+            console.log(`Lap ${pilot.lap -1} ${pilotName} ${lapTime}`);
           }
           if(pilot.finished != pilotData.finished){
             pilot.finished = pilotData.finished;
@@ -71,12 +76,12 @@ fs.readFile("settings.json", "utf-8", (err, data) => {
             pilot.lap = pilotData.lap;
             const lapLength = pilot.laps.length;
             const lapTime = pilot.laps[lapLength - 1] - pilot.laps[lapLength - 2];
-            console.log(`Lap ${pilotName} ${lapTime}`);
+            console.log(`Lap 3 ${pilotName} ${lapTime}`);
             console.log(`${pilotName} finished in ${pilotData.time}`);
           }
         }
       }
-    } else {
+    }else {
       // console.log('received: %s', data);
     }
   });
