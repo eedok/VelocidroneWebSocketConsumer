@@ -2,6 +2,7 @@
 
 import { readFile } from 'fs/promises';
 import WebSocket from 'ws';
+import os from 'os';
 
 var VelocidroneClient = {
     ws: {},
@@ -9,8 +10,11 @@ var VelocidroneClient = {
 
     initialise: async (settingsPath, messageCallback, openCallback, closeCallback, errorCallback) => {
         VelocidroneClient.settings = JSON.parse((await readFile(settingsPath)).toString());
-
-        VelocidroneClient.ws = new WebSocket(`ws://${VelocidroneClient.settings.localIP}:60003/velocidrone`);
+        let ip = VelocidroneClient.settings.localIP;
+        if(ip == null) {
+            ip = VelocidroneClient.getLocalIpAddress();
+        }
+        VelocidroneClient.ws = new WebSocket(`ws://${ip}:60003/velocidrone`);
 
         VelocidroneClient.ws.on('error', console.error);
         if (errorCallback !== undefined) {
@@ -38,7 +42,27 @@ var VelocidroneClient = {
     heartBeat: () => {
         VelocidroneClient.ws.send("");
         setTimeout(VelocidroneClient.heartBeat, 10000);
-    }
+    },
+
+    getLocalIpAddress: ()=> {
+        const networkInterfaces = os.networkInterfaces();
+        let ipAddress = null;
+      
+        // Iterate through each network interface
+        Object.keys(networkInterfaces).forEach((interfaceName) => {
+          const interfaces = networkInterfaces[interfaceName];
+      
+          // Iterate through each interface
+          interfaces.forEach((iface) => {
+            // Check if the interface is IPv4 and not a loopback
+            if (iface.family === 'IPv4' && !iface.internal) {
+              ipAddress = iface.address;
+            }
+          });
+        });
+      
+        return ipAddress;
+      }
 }
 
 export default VelocidroneClient;
