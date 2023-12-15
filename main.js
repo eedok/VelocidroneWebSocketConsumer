@@ -43,7 +43,7 @@ function message (data) {
                     pilot.lap = pilotData.lap;
                     const lapLength = pilot.laps.length;
                     const lapTime = pilot.laps[lapLength - 1] - pilot.laps[lapLength - 2];
-                    console.log(`Lap ${pilotName} ${lapTime}`);
+                    console.log(`Lap ${pilot.lap -1} ${pilotName} ${lapTime}`);
                 }
 
                 if (pilot.finished != pilotData.finished) {
@@ -52,7 +52,7 @@ function message (data) {
                     pilot.lap = pilotData.lap;
                     const lapLength = pilot.laps.length;
                     const lapTime = pilot.laps[lapLength - 1] - pilot.laps[lapLength - 2];
-                    console.log(`Lap ${pilotName} ${lapTime}`);
+                    console.log(`Lap ${pilot.lap} ${pilotName} ${lapTime}`);
                     console.log(`${pilotName} finished in ${pilotData.time}`);
                 }
             }
