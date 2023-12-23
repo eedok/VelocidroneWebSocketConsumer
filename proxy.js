@@ -1,10 +1,13 @@
 import VelocidroneClient from "./VelocidroneClient.js";
+import { readFile } from 'fs/promises';
 
-import fs from "node:fs";
+const settingsJson = (await readFile("./settings.json")).toString();
+const settings = settingsJson != null && settingsJson.length > 0 ? JSON.parse(settingsJson) : null;
 
 const RACEDATAKEYNAME = 'racedata';
 const RACESTATUSKEYNAME = 'racestatus';
 const RACEACTIONKEYNAME = 'raceaction';
+const REQUESTHEADERAPIKEYNAME = 'x-api-key';
 
 var raceStarted = false;
 
@@ -47,7 +50,7 @@ function buildRaceDataForSending(data) {
 	for (let pilotName of Object.keys(data[RACEDATAKEYNAME])) {
 		let pilotData = data[RACEDATAKEYNAME][pilotName];
 
-		let shouldSend = shouldSendForPilot(pilotData);
+		let shouldSend = shouldSendForPilot(pilotData, pilotName);
 
 		if (shouldSend == true && pilotDictionaryHasPilot(pilotName) == false) {
 			pilotDictionary[pilotName] = createPilot(pilotData, pilotName);
@@ -67,11 +70,15 @@ function shouldSend(data) {
 		return false;
 	}
 
-	for (let pilotName of Object.keys(data)) {
+	for (let pilotName of Object.keys(data)) {		
 		let pilotData = data[pilotName];
 
-		return shouldSendForPilot(pilotData, pilotName);
+		if (shouldSendForPilot(pilotData, pilotName) == true){
+			return true;
+		}
 	}
+
+	return false;
 }
 
 function shouldSendForPilot(pilotData, pilotName) {
@@ -95,17 +102,31 @@ function createPilot(pilotData, pilotName) {
 	};
 }
 
-async function postMessage(url, data) {
-
+async function postMessage(endpoint, data) {
 	try {
-		var res = await fetch('http://127.0.0.1:3000' + url, {
+		var requestData = {
 			method: 'POST',
 			body: data,
 			headers: {
-				'Content-Type': 'application/json',
-				'x-api-key': '{USERAPIKEY}'
+				'Content-Type': 'application/json'
 			}
-		});
+		};
+
+		if (settings === undefined) {
+			throw new Error("No settings found");
+		}
+
+		const httpUrl = settings.httpUrl != null && settings.httpUrl.length > 0 ? settings.httpUrl : 'http://127.0.0.1:3000';
+
+		if (settings.apiKey != null && settings.apiKey.length > 0) {
+			requestData.headers[REQUESTHEADERAPIKEYNAME] = settings.apiKey;
+		}
+
+		var res = await fetch(httpUrl + endpoint, requestData);
+
+		if (res.status != 200) {
+			throw new Error(`Failed to post message to ${settings.httpUrl + endpoint}: ${res.status} ${res.statusText}`);
+		}
 	} catch (error) {
 		console.log(error);
 	}
@@ -115,11 +136,12 @@ await VelocidroneClient.initialise("settings.json", message);
 
 //await VelocidroneClient.initialise("settings.json", (data) => {console.log(data.toString());});
 
-// fs.readFile(".\\V1data-test.txt", "utf16le", async (err, d) => {
-// 	if (d === undefined) { return; }
+// const d = await readFile(".\\V1data-test.txt", "utf16le")
+
+// if (d != null) {
 // 	let dataRows = d.split(/\r?\n/);
 
 // 	for (let row in dataRows) {
-// 		message(dataRows[row].toString());
+// 		await message(dataRows[row].toString());
 // 	}
-// });
+// }
