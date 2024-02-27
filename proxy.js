@@ -1,5 +1,6 @@
 import VelocidroneClient from "./VelocidroneClient.js";
 import { readFile } from 'fs/promises';
+import { randomUUID } from "crypto";
 
 const settingsJson = (await readFile("./settings.json")).toString();
 const settings = settingsJson != null && settingsJson.length > 0 ? JSON.parse(settingsJson) : null;
@@ -12,6 +13,7 @@ const REQUESTHEADERAPIKEYNAME = 'x-api-key';
 var raceStarted = false;
 
 var pilotDictionary = {};
+var raceId = null;
 
 async function message(data) {
 	var jsonString = data.toString();
@@ -31,12 +33,15 @@ async function message(data) {
 
 		if (obj.racestatus.raceAction == 'start') {
 			raceStarted = true;
+			raceId = randomUUID();
 			pilotDictionary = {};
 		}
 		else if (obj.racestatus.raceAction == 'abort' || obj.racestatus.raceAction == 'race finished') {
 			raceStarted = false;
 		}
 	}
+
+	obj.raceId = raceId;
 
 	if (endpoint) {
 		await postMessage(endpoint, JSON.stringify(obj));
@@ -132,16 +137,16 @@ async function postMessage(endpoint, data) {
 	}
 }
 
-await VelocidroneClient.initialise("settings.json", message);
+//await VelocidroneClient.initialise("settings.json", message);
 
 //await VelocidroneClient.initialise("settings.json", (data) => {console.log(data.toString());});
 
-// const d = await readFile(".\\V1data-test.txt", "utf16le")
+const d = await readFile("C:\\Users\\Crash\\Downloads\\V1data-test.txt", "utf16le")
 
-// if (d != null) {
-// 	let dataRows = d.split(/\r?\n/);
+if (d != null) {
+	let dataRows = d.split(/\r?\n/);
 
-// 	for (let row in dataRows) {
-// 		await message(dataRows[row].toString());
-// 	}
-// }
+	for (let row in dataRows) {
+		await message(dataRows[row].toString());
+	}
+}
