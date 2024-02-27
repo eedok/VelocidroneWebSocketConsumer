@@ -6,12 +6,14 @@
   "type": "module",
   "scripts": {
     "run": "node main.js",
+    "proxy": "node proxy.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@google-cloud/local-auth": "^2.1.0",
+    "crypto": "^1.0.1",
     "fs": "^0.0.1-security",
     "googleapis": "^105.0.0",
     "ws": "^8.13.0"
